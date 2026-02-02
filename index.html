@@ -3,140 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Uang</title>
+    <title>Ramalan Bintang Hari Ini</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent: #bb86fc;
-            --success: #03dac6;
-            --text-main: #e0e0e0;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --gold: #fbbf24;
+            --text: #f1f5f9;
+            --accent: #6366f1;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; padding-bottom: 20px; }
-
-        header { width: 100%; padding: 20px; text-align: center; }
-        h1 { font-weight: 300; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; font-size: 1.2rem; margin-bottom: 5px; }
-        p.subtitle { color: #888; font-size: 0.9rem; }
-
-        main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; padding: 10px; }
-
-        .controls { margin-bottom: 15px; display: flex; gap: 10px; }
-        button { background-color: var(--accent); color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
-        button.secondary { background-color: transparent; border: 1px solid var(--accent); color: var(--accent); }
-
-        .bag-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; perspective: 1000px; }
-
-        .card { background-color: transparent; width: 100%; aspect-ratio: 1 / 1; cursor: pointer; perspective: 1000px; position: relative; }
-        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .card.flipped .card-inner { transform: rotateY(180deg); }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid #333; overflow: hidden; }
-        
-        .card-back { background-color: var(--card-bg); background-image: radial-gradient(circle at 50% 50%, rgba(187, 134, 252, 0.15) 0%, transparent 60%); }
-        .card-back::after { content: "?"; font-size: 2rem; color: rgba(255,255,255,0.1); font-weight: bold; }
-        
-        .card-front { background-color: #2c2c2c; color: white; transform: rotateY(180deg); border: 2px solid var(--accent); flex-direction: column; }
-        .card-front img { width: 100%; height: 100%; object-fit: contain; }
-        .card-front span { font-size: 0.9rem; font-weight: bold; }
+        h1 { color: var(--gold); font-size: 2rem; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        .date { color: #94a3b8; margin-bottom: 30px; font-size: 0.9rem; }
 
-        /* Modal Result */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; flex-direction: column; text-align: center; }
-        .modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 2px solid var(--accent); width: 90%; max-width: 400px; }
-        .result-img { width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 20px; }
-        h2.result-title { color: var(--accent); margin-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 380px; width: 100%; }
         
-        .close-btn { margin-top: 20px; background: transparent; border: 1px solid #555; color: #fff; }
+        .z-btn {
+            background: var(--card); border: 1px solid #334155; color: var(--text);
+            padding: 15px 5px; border-radius: 12px; cursor: pointer;
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 5px;
+            font-size: 0.8rem;
+        }
+        .z-btn:hover { border-color: var(--gold); background: #334155; transform: translateY(-3px); }
+        .z-icon { font-size: 1.8rem; margin-bottom: 2px; }
 
-        @media (min-width: 600px) { .bag-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
+        /* Result Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-content { background: #111; border: 1px solid var(--gold); padding: 30px; border-radius: 20px; max-width: 400px; width: 100%; animation: slideUp 0.4s ease-out; }
+        
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .r-header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .r-icon { font-size: 4rem; color: var(--gold); }
+        .r-name { font-size: 2rem; color: white; text-transform: uppercase; font-weight: bold; }
+        
+        .section { text-align: left; margin-bottom: 20px; border-left: 3px solid var(--accent); padding-left: 15px; }
+        .s-title { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .s-text { color: #cbd5e1; line-height: 1.6; font-size: 0.95rem; }
+
+        .btn-close { margin-top: 25px; background: var(--text); color: #000; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+
+        /* Magic Mode Hidden */
+        .magic-trigger { position: fixed; bottom: 0; width: 100%; background: #000; color: #222; font-size: 10px; padding: 4px; cursor: pointer; }
+        .magic-trigger:hover { color: var(--gold); }
+        
+        #magicPanel { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; z-index:200; justify-content:center; align-items:center; }
+        .m-box { background: var(--card); padding:20px; width:90%; max-width:300px; text-align:center; }
+        select { width:100%; padding:10px; margin:15px 0; background:#000; color:#fff; border:1px solid #555; border-radius:5px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Coba Keberuntungan</h1>
-        <p class="subtitle">Pilih satu kotak, siapa tahu dapat uang!</p>
-    </header>
+    <h1>Ramalan Bintang</h1>
+    <div class="date" id="todayDate">Senin, 1 Januari 2024</div>
 
-    <main>
-        <div class="controls">
-            <button class="secondary" onclick="app.shuffle()">Acak Ulang</button>
-        </div>
-        <div id="grid" class="bag-grid"></div>
-    </main>
+    <div class="grid" id="zodiacGrid">
+        <!-- Grid generated by JS -->
+    </div>
 
     <!-- RESULT MODAL -->
-    <div id="resultModal" class="modal-overlay">
+    <div class="modal" id="resultModal">
         <div class="modal-content">
-            <h2 class="result-title">Dapet Apa Nih?</h2>
-            <img id="finalImg" class="result-img" src="" alt="Result">
-            <button class="close-btn" onclick="app.closeResult()">Coba Lagi</button>
+            <div class="r-header">
+                <div class="r-icon" id="resIcon">♈</div>
+                <div class="r-name" id="resName">Aries</div>
+            </div>
+
+            <div class="section">
+                <div class="s-title">Karakter & Sifat</div>
+                <div class="s-text" id="resChar">...</div>
+            </div>
+
+            <div class="section">
+                <div class="s-title">Cinta & Hubungan</div>
+                <div class="s-text" id="resLove">...</div>
+            </div>
+
+            <div class="section">
+                <div class="s-title">Karir & Keuangan</div>
+                <div class="s-text" id="resCareer">...</div>
+            </div>
+
+            <button class="btn-close" onclick="closeModal()">Tutup</button>
+        </div>
+    </div>
+
+    <!-- MAGIC PANEL -->
+    <div class="magic-trigger" onclick="openMagic()">Mode Sulap</div>
+    <div id="magicPanel">
+        <div class="m-box">
+            <h3 style="color:var(--gold)">Paksa Hasil (Prank)</h3>
+            <p style="font-size:0.8rem; color:#aaa;">Pilih bintang yang akan muncul di temanmu:</p>
+            <select id="forceSelect"></select>
+            <button class="btn-close" onclick="createLink()" style="margin-top:0;">Buat Link WA</button>
+            <button class="btn-close" onclick="document.getElementById('magicPanel').style.display='none'" style="background:transparent; border:1px solid #555; color:#fff; margin-top:10px;">Tutup</button>
+            <div id="linkOut" style="margin-top:10px; font-size:0.7rem; color:#888; word-break:break-all;"></div>
         </div>
     </div>
 
     <script>
-        // DATA SUDAH DISET OTOMATIS DI SINI
-        const data = {
-            // TARGET: Uang 100 Ribu
-            target: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/100000_rupiah_2014.jpg/600px-100000_rupiah_2014.jpg",
-            // PENGECOH: Uang Lain
-            decoys: [
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/50000_rupiah_2016.jpg/600px-50000_rupiah_2016.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/20000_rupiah_2016.jpg/600px-20000_rupiah_2016.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/10000_rupiah_2016.jpg/600px-10000_rupiah_2016.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/5000_rupiah_2016.jpg/600px-5000_rupiah_2016.jpg"
-            ],
-            gridSize: 12
-        };
+        // DATA RAMALAN (Psikologi Barnum Effect - Terasa Asli)
+        const zodiacs = [
+            { id: 'aries', name: 'Aries', icon: '♈', char: "Anda memiliki energi besar dan ambisi yang tinggi. Terkadang Anda merasa lebih pintar dari orang lain, tapi Anda sebenarnya sosok yang bisa diandalkan saat situasi genting.", love: "Jangan terlalu egois dalam hubungan. Pasangan Anda butuh dukungan, bukan perintah. Kejutan kecil akan memperbaiki suasana hati mereka.", career: "Peluang besar sedang menghadang. Manfaatkan koneksi lama Anda. Jangan ragu untuk mengambil keputusan berisiko hari ini." },
+            { id: 'taurus', name: 'Taurus', icon: '♉', char: "Anda stabil dan bisa dipercaya, namun sangat keras kepali. Anda menyukai kenyamanan dan ketenangan, tapi sebenarnya Anda menyimpan rasa cemburu yang dalam terhadap kesuksesan orang lain.", love: "Ketulusan Anda akan teruji hari ini. Ada seseorang dari masa lalu yang mungkin menghubungi Anda. Jangan buka pintu jika Anda ingin move on.", career: "Keuangan stabil, jangan boros untuk hal yang tidak penting. Bos Anda sedang memperhatikan kinerja detail Anda." },
+            { id: 'gemini', name: 'Gemini', icon: '♊', char: "Pikiran Anda cepat dan Anda suka berubah-ubah. Orang lain sering tidak mengerti apa yang Anda pikirkan. Anda sebenarnya memiliki dua sisi: satu yang ramah, dan satu yang sangat pendiam.", love: "Komunikasi adalah kunci hari ini. Jangan biarkan kesalahpahaman membuang malam Anda. Ungkapkan perasaan dengan jujur.", career: "Anda sedang dalam fase produktif. Jangan ambil banyak proyek sekaligus, fokus pada satu hal agar hasilnya maksimal." },
+            { id: 'cancer', name: 'Cancer', icon: '♋', char: "Anda sangat peka dan emosional. Anda peduli pada orang lain, tapi sering lupa menjaga diri sendiri. Rumah adalah tempat ternyaman bagi Anda.", love: "Anda terlalu protektif terhadap pasangan. Beri mereka ruang bernapas. Hal itu akan membuat hubungan Anda semakin erat.", career: "Jangan bawa masalah pribadi ke tempat kerja. Fokuslah pada target minggu ini untuk mendapatkan bonus." },
+            { id: 'leo', name: 'Leo', icon: '♌', char: "Anda lahir menjadi pemimpin dan menyukai pujian. Anda memiliki karisma yang kuat. Namun, Anda sering merasa tidak dihargai meskipun sudah bekerja keras.", love: "Anda butuh pasangan yang selalu memujimu. Jika tidak, Anda akan cepat bosom. Luangkan waktu khusus untuk pasangan hari ini.", career: "Ini saatnya bersinar. Tunjukkan kemampuanmu di depan umum. Sebuah promosi atau pengakuan sedang menunggu." },
+            { id: 'virgo', name: 'Virgo', icon: '♍', char: "Anda perfeksionis dan suka mengatur segalanya. Kritikan Anda sering dianggap menyakitkan, padahal niat Anda baik. Anda butuh relaksasi agar pikiran tidak kaku.", love: "Hentikan kritis terus-menerus pada pasangan. Terimalah mereka apa adanya. Romansa akan datang dari hal-hal kecil dan sederhana.", career: "Detail adalah kekuatanmu. Gunakan itu untuk menyelesaikan pekerjaan yang tertunda. Orang lain akan sangat terkesan." },
+            { id: 'libra', name: 'Libra', icon: '♎', char: "Anda mencari keseimbangan dalam segala hal. Anda sulit mengambil keputusan karena tidak mau menyakiti siapapun. Anda sangat menyukai keindahan dan ketertiban.", love: "Anda sedang bimbang antara dua pilihan. Ikuti kata hati, bukan logika. Hubungan harmonis akan tercipta jika Anda jujur pada diri sendiri.", career: "Kerjasama tim akan sangat berhasil hari ini. Jangan bekerja sendirian. Bicarakan ide Anda pada rekan kerja." },
+            { id: 'scorpio', name: 'Scorpio', icon: '♏', char: "Anda misterius dan memiliki intuisi yang kuat. Anda mudah curiga, tapi jika Anda mencintai, Anda akan setia sepenuh hati. Anda memiliki kekuatan tersembunyi.", love: "Pasangan Anda merasa sedang dijauhi. Tunjukkan sisi lembut Anda. Kejujuran adalah satu-satunya cara memperbaiki kepercayaan.", career: "Jangan gunakan strategi licik. Kejujuran dalam bisnis akan membawa keuntungan jangka panjang. Awas jebakan kompetitor." },
+            { id: 'sagittarius', name: 'Sagittarius', icon: '♐', char: "Anda petualang dan optimis. Anda membenci keterikatan dan aturan yang membatasi. Anda pandai bicara dan bisa membuat orang lain senang, tapi Anda sering tidak peka perasaan.", love: "Anda butuh kebebasan, jangan memaksa pasangan untuk selalu ada di sisimu. Beri ruang, dia akan kembali padamu dengan senyuman.", career: "Ide-ide liar Anda hari ini mungkin jenius. Tulis semua ide Anda. Ada peluang bisnis baru yang menguntungkan." },
+            { id: 'capricorn', name: 'Capricorn', icon: '♑', char: "Anda serius, disiplin, dan ambisius. Anda peduli status dan karir. Di balik wajah tegar, Anda sebenarnya punya rasa humor yang gelap dan unik.", love: "Jangan terlalu sibuk bekerja sampai melupakan waktu pacaran. Pasangan Anda merasa diabaikan. Undang mereka makan malam.", career: "Kerja keras Anda mulai membuahkan hasil. Jangan puas sekarang, teruslah naik. Atasan akan memperhatikan dedikasi Anda." },
+            { id: 'aquarius', name: 'Aquarius', icon: '♒', char: "Anda unik dan berpikiran maju. Anda tidak suka mengikuti arus. Sifat Anda yang suka mengubah-ubah rencana membuat orang lain kesal, tapi Anda sangat manusiawi.", love: "Hubungan Anda butuh kejutan. Lakukan hal di luar kebiasaan. Pasangan Anda bosan dengan rutinitas.", career: "Inovasi adalah kunci Anda hari ini. Gunakan teknologi atau cara baru untuk menyelesaikan masalah kerja lama." },
+            { id: 'pisces', name: 'Pisces', icon: '♓', char: "Anda sensitif, penuh imajinasi, dan mudah tersentuh. Anda sering melarikan diri dari kenyataan. Anda punya kemampuan artistik yang luar biasa.", love: "Anda terlalu percaya orang lain hari ini. Hati-hati dengan orang yang baru Anda kenal. Fokuslah pada orang yang sudah menemani Anda.", career: "Gunakan kreativitas Anda. Jangan terlalu mengandalkan logika. Naluri Anda akan membawa Anda ke solusi terbaik." }
+        ];
 
-        const app = {
-            init: function() {
-                this.shuffle();
-            },
+        // Init
+        const today = new Date();
+        document.getElementById('todayDate').innerText = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            shuffle: function() {
-                const grid = document.getElementById('grid');
-                grid.innerHTML = '';
-                
-                // Buat Pool (100% Target)
-                let pool = [];
-                for(let i=0; i < data.gridSize; i++) {
-                    pool.push(data.target);
-                }
+        // Render Grid
+        const grid = document.getElementById('zodiacGrid');
+        const select = document.getElementById('forceSelect');
+        let forcedId = null;
 
-                // Shuffle Posisi Kartu (Visual saja, isinya sama semua)
-                for (let i = pool.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [pool[i], pool[j]] = [pool[j], pool[i]];
-                }
+        // Check URL Force
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('force')) forcedId = params.get('force');
 
-                // Render
-                pool.forEach(url => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.onclick = () => this.showResult(url);
-                    card.innerHTML = `
-                        <div class="card-inner">
-                            <div class="card-front"><img src="${url}" loading="lazy"></div>
-                            <div class="card-back"></div>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            },
+        zodiacs.forEach(z => {
+            // Button Grid
+            const btn = document.createElement('div');
+            btn.className = 'z-btn';
+            btn.onclick = () => showResult(z.id);
+            btn.innerHTML = `<div class="z-icon">${z.icon}</div><div>${z.name}</div>`;
+            grid.appendChild(btn);
 
-            showResult: function(url) {
-                document.getElementById('finalImg').src = url;
-                document.getElementById('resultModal').style.display = 'flex';
-            },
+            // Select Option
+            const opt = document.createElement('option');
+            opt.value = z.id;
+            opt.innerText = z.name;
+            select.appendChild(opt);
+        });
 
-            closeResult: function() {
-                document.getElementById('resultModal').style.display = 'none';
-            }
-        };
+        function showResult(id) {
+            // Jika ada paksaan dari link, gunakan paksaan itu
+            const finalId = forcedId ? forcedId : id;
+            const data = zodiacs.find(z => z.id === finalId);
 
-        document.addEventListener('DOMContentLoaded', () => app.init());
+            document.getElementById('resIcon').innerText = data.icon;
+            document.getElementById('resName').innerText = data.name;
+            document.getElementById('resChar').innerText = data.char;
+            document.getElementById('resLove').innerText = data.love;
+            document.getElementById('resCareer').innerText = data.career;
+
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        // Magic Logic
+        function openMagic() {
+            document.getElementById('magicPanel').style.display = 'flex';
+        }
+
+        function createLink() {
+            const val = document.getElementById('forceSelect').value;
+            const base = window.location.href.split('?')[0];
+            const finalLink = `${base}?force=${val}`;
+            
+            const out = document.getElementById('linkOut');
+            out.style.display = 'block';
+            out.innerText = finalLink;
+
+            navigator.clipboard.writeText(finalLink).then(() => {
+                alert("Link Prank Berhasil Disalin!");
+            });
+        }
     </script>
 </body>
 </html>
