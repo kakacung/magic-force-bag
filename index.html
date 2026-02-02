@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Force Bag - Remote</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #bb86fc;
+            --accent-hover: #9965f4;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --success: #03dac6;
+            --danger: #cf6679;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+
+        header { width: 100%; padding: 20px; text-align: center; }
+        h1 { font-weight: 300; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 5px; }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; }
+
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 800px; padding: 20px; }
+
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+        button { background-color: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
+        button.secondary { background-color: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        button.secondary:hover { background-color: rgba(187, 134, 252, 0.1); }
+
+        /* Grid Container */
+        .bag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; perspective: 1000px; }
+
+        /* Card Styles */
+        .card { background-color: transparent; width: 100%; aspect-ratio: 1 / 1; cursor: pointer; perspective: 1000px; position: relative; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 2px solid #333; }
+        
+        .card-back { background-color: var(--card-bg); background-image: radial-gradient(circle at 50% 50%, rgba(187, 134, 252, 0.1) 0%, transparent 60%); }
+        .card-back::after { content: "?"; font-size: 2rem; color: rgba(255,255,255,0.1); font-weight: bold; }
+        
+        .card-front { background-color: #2c2c2c; color: white; transform: rotateY(180deg); padding: 10px; flex-direction: column; border: 2px solid var(--accent); }
+        .card-front span { font-size: 1.1rem; font-weight: bold; text-align: center; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal { background: var(--card-bg); padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; border: 1px solid #333; text-align: center; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .modal-header h2 { font-size: 1.2rem; color: var(--accent); }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 0; }
+        
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #121212; border: 1px solid #333; color: var(--text-main); border-radius: 5px; }
+        
+        #linkOutput { width: 100%; padding: 10px; background: #000; border: 1px solid var(--accent); color: var(--success); font-family: monospace; font-size: 0.8rem; word-break: break-all; margin-top: 10px; height: 80px; overflow-y: auto; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--success); color: #000; padding: 10px 20px; border-radius: 25px; font-weight: 600; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 2000; }
+        .toast.show { opacity: 1; }
+
+        /* Responsive */
+        @media (max-width: 599px) { .bag-grid { grid-template-columns: repeat(3, 1fr); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mind Force Remote</h1>
+        <p class="subtitle">Pilih satu kartu secara acak...</p>
+    </header>
+
+    <main>
+        <!-- Tombol Settings Hanya Muncul jika Mode Magician -->
+        <div class="controls" id="magicianControls" style="display:none;">
+            <button class="secondary" onclick="app.shuffleBag()">Acak Ulang</button>
+            <button class="secondary" onclick="app.openSettings()">Buat Link WA</button>
+        </div>
+
+        <div id="gridContainer" class="bag-grid">
+            <!-- Kartu JS -->
+        </div>
+    </main>
+
+    <footer>
+        <a href="#" id="magicianLink" style="color:#444; text-decoration:none; display:none;" onclick="app.showMagicianMode()">Magician Access</a>
+    </footer>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Pengaturan & Buat Link</h2>
+                <button class="close-btn" onclick="app.closeSettings()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Target Paksa (Yang Ingin Dipilih Teman)</label>
+                <input type="text" id="targetInput" placeholder="Contoh: Jeruk, Emas, Angka 7">
+            </div>
+
+            <div class="form-group">
+                <label>Item Pengecoh (Pisahkan dengan baris baru)</label>
+                <textarea id="decoyInput" rows="3">Apel
+Pisang
+Anggur
+Mangga</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Tingkat Kemudahan</label>
+                <select id="difficulty" style="width:100%; padding:10px; background:#121212; color:white; border:1px solid #333; border-radius:5px;">
+                    <option value="very_easy">Musti Benar (100% Semua Target)</option>
+                    <option value="easy">Mudah (80% Target)</option>
+                </select>
+            </div>
+
+            <button onclick="app.generateLink()" style="width: 100%; justify-content: center; background: var(--success);">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right:5px"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+                Generate Link untuk WA
+            </button>
+
+            <div id="linkContainer" style="margin-top:15px; text-align: left; display:none;">
+                <label style="font-size:0.8rem; color:#aaa;">Salin link ini dan kirim ke WA:</label>
+                <div id="linkOutput" onclick="this.select();"></div>
+                <button onclick="app.copyLink()" class="secondary" style="width:100%; margin-top:5px; justify-content:center; font-size:0.8rem;">Salin ke Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT MODAL -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal" style="border-color: var(--accent);">
+            <div class="modal-header">
+                <h2>Hasil Pilihan...</h2>
+            </div>
+            <h1 id="resultText" style="color:var(--accent); font-size:2rem; margin:20px 0;"></h1>
+            <p style="color:#aaa;">Coba ulangi jika merasa salah?</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Link Disalin!</div>
+
+    <script>
+        const app = {
+            config: {
+                target: 'Jeruk',
+                decoys: ['Apel', 'Pisang', 'Anggur', 'Mangga'],
+                level: 'very_easy',
+                gridSize: 12
+            },
+            isMagician: false,
+
+            init() {
+                // 1. Cek apakah ada data di URL (Dari link WA)
+                const urlParams = new URLSearchParams(window.location.search);
+                const dataParam = urlParams.get('data');
+
+                if (dataParam) {
+                    // Mode Penonton (Ada Link Data)
+                    this.loadConfigFromURL(dataParam);
+                    // Sembunyikan fitur magician
+                    this.isMagician = false;
+                    document.getElementById('magicianControls').style.display = 'none';
+                    document.getElementById('magicianLink').style.display = 'none';
+                } else {
+                    // Mode Magician (Biasa)
+                    this.isMagician = true;
+                    document.getElementById('magicianControls').style.display = 'flex';
+                    document.getElementById('magicianLink').style.display = 'block';
+                    // Load Default
+                    this.elements.targetInput.value = this.config.target;
+                    this.elements.decoyInput.value = this.config.decoys.join('\n');
+                }
+
+                this.shuffleBag();
+            },
+
+            elements: {
+                grid: document.getElementById('gridContainer'),
+                settingsModal: document.getElementById('settingsModal'),
+                targetInput: document.getElementById('targetInput'),
+                decoyInput: document.getElementById('decoyInput'),
+                difficulty: document.getElementById('difficulty'),
+                resultModal: document.getElementById('resultModal'),
+                resultText: document.getElementById('resultText'),
+                linkOutput: document.getElementById('linkOutput'),
+                linkContainer: document.getElementById('linkContainer')
+            },
+
+            showMagicianMode() {
+                // Jika penonton iseng klik footer 3x (atau akses langsung), kita beri akses setting
+                this.elements.settingsModal.style.display = 'flex';
+            },
+
+            // Enkripsi/Deskripsi Sederhana agar URL tidak terlalu jelas
+            utf8_to_b64(str) {
+                return window.btoa(unescape(encodeURIComponent(str)));
+            },
+            b64_to_utf8(str) {
+                return decodeURIComponent(escape(window.atob(str)));
+            },
+
+            loadConfigFromURL(encodedData) {
+                try {
+                    const jsonString = this.b64_to_utf8(encodedData);
+                    const data = JSON.parse(jsonString);
+                    this.config.target = data.t;
+                    this.config.decoys = data.d;
+                    this.config.level = data.l || 'very_easy';
+                } catch (e) {
+                    console.error("Link Error", e);
+                    // Fallback ke default jika link rusak
+                    this.config.target = "Angka 7";
+                    this.config.decoys = ["1", "2", "3"];
+                }
+            },
+
+            openSettings() {
+                this.elements.linkContainer.style.display = 'none'; // Reset tampilan
+                this.elements.settingsModal.style.display = 'flex';
+            },
+
+            closeSettings() {
+                this.elements.settingsModal.style.display = 'none';
+            },
+
+            generateLink() {
+                // Ambil data dari input
+                const target = this.elements.targetInput.value.trim() || "Target";
+                const decoysRaw = this.elements.decoyInput.value;
+                const decoys = decoysRaw.split('\n').filter(d => d.trim() !== "");
+                const level = this.elements.difficulty.value;
+
+                // Buat Object Data
+                const dataObj = {
+                    t: target,
+                    d: decoys.length > 0 ? decoys : ["Pengecoh"],
+                    l: level
+                };
+
+                // Encode
+                const encodedData = this.utf8_to_b64(JSON.stringify(dataObj));
+
+                // Buat URL Full
+                const baseUrl = window.location.href.split('?')[0];
+                const finalLink = `${baseUrl}?data=${encodedData}`;
+
+                // Tampilkan
+                this.elements.linkOutput.innerText = finalLink;
+                this.elements.linkContainer.style.display = 'block';
+            },
+
+            copyLink() {
+                const text = this.elements.linkOutput.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    const toast = document.getElementById('toast');
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 2000);
+                });
+            },
+
+            shuffleBag() {
+                this.elements.grid.innerHTML = '';
+                const size = this.config.gridSize;
+                let pool = [];
+                
+                let ratio = (this.config.level === 'very_easy') ? 1.0 : 0.8; // 100% atau 80%
+                let targetCount = Math.floor(size * ratio);
+                if(targetCount === 0) targetCount = 1;
+                const decoyCount = size - targetCount;
+
+                // Isi Pool
+                for(let i=0; i<targetCount; i++) pool.push({ type: 'target', content: this.config.target });
+                for(let i=0; i<decoyCount; i++) {
+                    const rnd = this.config.decoys[Math.floor(Math.random() * this.config.decoys.length)];
+                    pool.push({ type: 'decoy', content: rnd });
+                }
+
+                // Shuffle (Acak Posisi)
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+
+                // Render Kartu
+                pool.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.onclick = () => this.reveal(item);
+                    card.innerHTML = `
+                        <div class="card-inner">
+                            <div class="card-front"><span>${item.content}</span></div>
+                            <div class="card-back"></div>
+                        </div>
+                    `;
+                    this.elements.grid.appendChild(card);
+                });
+            },
+
+            reveal(item) {
+                // Tutup semua kartu yang mungkin terbuka (opsional)
+                // Tampilkan Hasil
+                this.elements.resultText.innerText = item.content;
+                this.elements.resultModal.style.display = 'flex';
+            },
+
+            closeResult() {
+                this.elements.resultModal.style.display = 'none';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
