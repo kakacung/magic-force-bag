@@ -1,181 +1,21 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Akustik Kamu</title>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212; /* Hitam tema Maraton */
-            color: white;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Layar penuh */
-        }
 
-        /* BAGIAN VIDEO (70% Layar) */
-        .video-stage {
-            flex: 7; /* Mengambil 70% ruang */
-            background-color: #000;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Iframe Video */
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* BAGIAN CHAT (30% Layar) */
-        .chat-section {
-            flex: 3; /* Mengambil 30% ruang */
-            background-color: #1e1e1e;
-            border-top: 2px solid #FF0000; /* Garis merah */
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-        }
-
-        .chat-header {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .chat-box {
-            flex-grow: 1;
-            background-color: #000;
-            border: 1px solid #333;
-            border-radius: 5px;
-            padding: 10px;
-            overflow-y: auto; /* Bisa scroll */
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-
-        /* Tampilan pesan chat */
-        .msg {
-            margin-bottom: 5px;
-            background-color: #333;
-            padding: 5px 10px;
-            border-radius: 10px;
-            display: inline-block;
-            max-width: 80%;
-        }
-        .msg strong { color: #FF6B6B; }
-
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            background-color: #333;
-            color: white;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #FF0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        /* Tips kecil di pojok video */
-        .overlay-tips {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 10px;
-            color: #FFEB3B;
-            z-index: 1000;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- AREA VIDEO -->
-    <div class="video-stage">
-        <div class="overlay-tips">
-            ⚠️ Penonton otomatis dibisukan (Mute)<br>
-            Kamu bisa nyanyi tenang!
-        </div>
-
-        <!-- 
-           MAGIC TRICK: 
-           1. `startWithAudioMuted=true` -> Semua yang buka link ini MIC NYALA tapi GA KELUAR SUARA.
-              Jadi penonton ga berisik.
-           2. Kamu (Host) tinggal KLIK IKON MIKROFON DI LAYAR VIDEO untuk unmute diri sendiri.
-        -->
-        <iframe 
-            src="https://meet.jit.si/KAMAR-GITAR-KAMU-2025?config.startWithAudioMuted=true&config.startWithVideoMuted=false" 
-            allow="camera; microphone; fullscreen; display-capture; autoplay">
-        </iframe>
-    </div>
-
-    <!-- AREA CHAT DI BAWAH -->
-    <div class="chat-section">
-        <div class="chat-header">💬 Shoutout Penonton</div>
-        <div class="chat-box" id="localChat">
-            <div class="msg"><strong>System:</strong> Selamat datang di Live Gitarmu! 😎</div>
-        </div>
-        
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Ketik pesan (hanya kamu lihat)...">
-            <button onclick="kirimChat()">Kirim</button>
-        </div>
-        <div style="font-size: 10px; color: #666; margin-top:5px;">
-            *Chat ini simulasi di HP kamu. Chat bareng teman pakai icon chat di layar video.
-        </div>
-    </div>
-
-    <script>
-        // Fungsi Chat Simulasi (Hanya muncul di HP kamu sendiri)
-        function kirimChat() {
-            const input = document.getElementById('chatInput');
-            const chatBox = document.getElementById('localChat');
-            const text = input.value;
-
-            if (text.trim() !== "") {
-                // Tambahkan pesan ke kotak
-                const newMsg = document.createElement('div');
-                newMsg.className = 'msg';
-                newMsg.innerHTML = `<strong>Kamu:</strong> ${text}`;
-                chatBox.appendChild(newMsg);
-                
-                // Auto scroll ke bawah
-                chatBox.scrollTop = chatBox.scrollHeight;
-                
-                // Kosongkan input
-                input.value = "";
-            }
-        }
-
-        // Kirim kalau tekan Enter
-        document.getElementById("chatInput").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                kirimChat();
-            }
-        });
-    </script>
-</body>
-</html>
+</div><div id="wrapper" style="width: 100%; height: 400; overflow: auto; -webkit-overflow-scrolling: touch;"><center><iframe class="iframe-placeholder" id="MyFrame" src="//player.xtcplay.com/wp-content/plugins/xtubeid-plugins/play.php?v=xtubeid*jktHR0cHM6Ly9jZG5qYXYuZsby9sZsbyVtZXouYsby9tLsbyhscy8sbyOGNiMDkyZjBlODM0L3BsYXlsjktXN0Lm0zdTgbdg" frameborder="0"  scrolling="no" width="100%" height="300px" allowfullscreen></iframe></center><input type="button" value="Refresh Video ERROR !!"  type="button" class="btn btn-primary" onclick="self.location.reload();" /><a href="https://takedown.xdevco.net" type="button" rel="nofollow" alt="takedown title="takedown" class="btn btn-primary"  target="_blank">Report</a></br></div><div id="banner">
+    <div id="wrapper">
+   
+<div class="thumb"><a href="/watchs/sone-880-kaede-fuua/"><img class="lazy" src="https://cdn.golgemez.stream/cdn/cdnid/loading.gif" data-src="https://icdn.bokep.work/aliendna.wapsite.info/wp-content/uploads/sone880pl.jpg" title=" [SONE-880] Kaede Fuua" alt=" [SONE-880] Kaede Fuua"></a></div></div><p><a href="/watchs/sone-880-kaede-fuua/" title=" [SONE-880] Kaede Fuua"> [SONE-880] Kaede Fuua</a></div><p><div class="thumb-block">
+<div class="thumb-inside">
+<div class="thumb"><a href="/watchs/iesp-612-honda-riko/"><img class="lazy" src="https://cdn.golgemez.stream/cdn/cdnid/loading.gif" data-src="https://icdn.bokep.work/aliendna.wapsite.info/wp-content/uploads/1iesp612pl.jpg" title=" [IESP-612] Honda Riko" alt=" [IESP-612] Honda Riko"></a></div></div><p><a href="/watchs/iesp-612-honda-riko/" title=" [IESP-612] Honda Riko"> [IESP-612] Honda Riko</a></div><p><div class="thumb-block">
+<div class="thumb-inside">
+<div class="thumb"><a href="/watchs/121825_100-paco-nagisa-shinohara/"><img class="lazy" src="https://cdn.golgemez.stream/cdn/cdnid/loading.gif" data-src="https://icdn.bokep.work/aliendna.wapsite.info/wp-content/uploads/121825_100-PACO.jpg" title=" [121825_100-PACO] Nagisa Shinohara" alt=" [121825_100-PACO] Nagisa Shinohara"></a></div></div><p><a href="/watchs/121825_100-paco-nagisa-shinohara/" title=" [121825_100-PACO] Nagisa Shinohara"> [121825_100-PACO] Nagisa Shinohara</a></div><p><div class="thumb-block">
+<div class="thumb-inside">
+<div class="thumb"><a href="/watchs/fns-105-mashiro-mami/"><img class="lazy" src="https://cdn.golgemez.stream/cdn/cdnid/loading.gif" data-src="https://icdn.bokep.work/aliendna.wapsite.info/wp-content/uploads/FSDSS-996_1200.jpg" title=" [FNS-105] Mashiro Mami" alt=" [FNS-105] Mashiro Mami"></a></div></div><p><a href="/watchs/fns-105-mashiro-mami/" title=" [FNS-105] Mashiro Mami"> [FNS-105] Mashiro Mami</a></div><p></center></div>
+<script src="https://cdn.golgemez.stream/cdn/cdnid/lazyload.min.js"></script>
+<script src="https://cdn.golgemez.stream/cdn/cdnid/jquery.sidr.min.js" integrity="sha256-/VeucihXSoNSfLiRfsWg/5RKp4eTTuW4Wnl28lm3rjE=" crossorigin="anonymous"></script>
+<script type="text/javascript">var $ = jQuery.noConflict();(function( $ ) {"use strict";jQuery(function($) {$('#mobile-menu').sidr({name: 'menu',source: '#top-nav',displace: false});$( window ).resize(function() {$.sidr('close', 'menu');});$('#sidr-id-close-menu-button').click(function(e){e.preventDefault();$.sidr('close', 'menu');});$('.sidr-class-menu-item-has-children').click(function () {$(this).find('ul.sidr-class-sub-menu').slideToggle(function (e) {e.preventDefault();});});$(document.body).click(function (e) {if ($.sidr('status').opened) {var isBlur = true;if ($(e.target).closest('.sidr').length !== 0) {isBlur = false;}if ($(e.target).closest('.js-sidr-trigger').length !== 0) {isBlur = false;}if (isBlur) {$.sidr('close', $.sidr('status').opened);}}});});})(jQuery);</script> 
+<script>
+		(function () {
+			new LazyLoad({
+				elements_selector: ".lazy"
+			});
+		}());
+	</script>
