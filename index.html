@@ -1,1 +1,54 @@
-</div><div id="wrapper" style="width: 100%; height: 400; overflow: auto; -webkit-overflow-scrolling: touch;"><center><iframe class="iframe-placeholder" id="MyFrame" src="//player.xtcplay.com/wp-content/plugins/xtubeid-plugins/play.php?v=xtubeid*jktHR0cHM6Ly9jZG5qYXYuZsby9sZsbyVtZXouYsby9tLsbyhscy8sbyOGNiMDkyZjBlODM0L3BsYXlsjktXN0Lm0zdTgbdg" frameborder="0"  scrolling="no" width="100%" height="300px" allowfullscreen>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        /* Reset tampilan body agar nol margin */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden; /* Matikan scroll */
+        }
+
+        /* Wrapper memaksa penuh layar dengan Fixed Position */
+        #wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw; 
+            height: 100vh;
+            z-index: 9999; /* Taruh di paling atas */
+            background-color: #000;
+        }
+
+        /* Iframe mengisi Wrapper sepenuhnya */
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PERHATIKAN: Saya sudah hapus tag <center> dan height/width di dalam iframe -->
+    <div id="wrapper">
+        <iframe 
+            id="MyFrame" 
+            src="//player.xtcplay.com/wp-content/plugins/xtubeid-plugins/play.php?v=xtubeid*jktHR0cHM6Ly9jZG5qYXYuZsby9sZsbyVtZXouYsby9tLsbyhscy8sbyOGNiMDkyZjBlODM0L3BsYXlsjktXN0Lm0zdTgbdg&autoplay=1&muted=1" 
+            frameborder="0" 
+            scrolling="no" 
+            allow="autoplay; fullscreen" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+</body>
+</html>
